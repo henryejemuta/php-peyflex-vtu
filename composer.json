@@ -1,7 +1,6 @@
 {
     "name": "henryejemuta/php-peyflex-vtu",
     "description": "A PHP package for integrating with the Peyflex VTU API.",
-    "version": "1.0.0",
     "type": "library",
     "license": "MIT",
     "authors": [
