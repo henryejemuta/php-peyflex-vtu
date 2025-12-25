@@ -4,6 +4,7 @@
 [![Latest Stable Version](https://poser.pugx.org/henryejemuta/php-peyflex-vtu/v/stable)](https://packagist.org/packages/henryejemuta/php-peyflex-vtu)
 [![Total Downloads](https://poser.pugx.org/henryejemuta/php-peyflex-vtu/downloads)](https://packagist.org/packages/henryejemuta/php-peyflex-vtu)
 [![License](https://poser.pugx.org/henryejemuta/php-peyflex-vtu/license)](https://packagist.org/packages/henryejemuta/php-peyflex-vtu)
+[![Quality Score](https://img.shields.io/scrutinizer/g/henryejemuta/php-peyflex-vtu.svg?style=flat-square)](https://scrutinizer-ci.com/g/henryejemuta/php-peyflex-vtu)
 
 A robust PHP package for integrating with the Peyflex VTU API. This package allows you to easily purchase airtime, data, cable TV, and electricity tokens.
 
