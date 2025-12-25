@@ -27,6 +27,11 @@
             "HenryEjemuta\\Peyflex\\Tests\\": "tests/"
         }
     },
+    "config": {
+        "platform": {
+            "php": "7.4"
+        }
+    },
     "scripts": {
         "test": "vendor/bin/phpunit",
         "lint": "vendor/bin/php-cs-fixer fix --dry-run --diff",
