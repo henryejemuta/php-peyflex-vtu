@@ -47,7 +47,7 @@ class Client
 
         $handlerStack = $config['handler_stack'] ?? \GuzzleHttp\HandlerStack::create();
 
-        if (! isset($config['handler_stack'])) {
+        if (!isset($config['handler_stack'])) {
             // Only add retry middleware if we are using the default stack
             // OR we can add it regardless, but we need to be careful about duplication if the passed stack has it.
             // Let's append it regardless, assuming the test usage knows what it's doing.
@@ -88,7 +88,7 @@ class Client
             'handler' => $handlerStack,
             'headers' => [
                 'Accept' => 'application/json',
-                'Authorization' => 'Bearer '.$this->token,
+                'Authorization' => 'Token ' . $this->token,
                 'Content-Type' => 'application/json',
             ],
         ];
@@ -113,7 +113,7 @@ class Client
             $data = json_decode($content, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new PeyflexException('Failed to decode JSON response: '.json_last_error_msg());
+                throw new PeyflexException('Failed to decode JSON response: ' . json_last_error_msg());
             }
 
             return $data;
@@ -129,7 +129,7 @@ class Client
                     $message = $errorData['error'];
                 }
             }
-            throw new PeyflexException('API Request Failed: '.$message, $e->getCode(), $e);
+            throw new PeyflexException('API Request Failed: ' . $message, $e->getCode(), $e);
         }
     }
 
@@ -209,6 +209,18 @@ class Client
         return $this->request('GET', 'data/plans', [
             'query' => ['network' => $networkId],
         ]);
+    }
+
+    /**
+     * Get data plans for a network.
+     *
+     * @param string $provider The provider identifier (e.g., 'dstv', 'gotv', 'startimes').
+     * @return array
+     * @throws PeyflexException
+     */
+    public function getCableTvPlans(string $provider): array
+    {
+        return $this->request('GET', "cable/plans/{$provider}");
     }
 
     /**
