@@ -44,11 +44,7 @@ $client = new Client('YOUR_API_TOKEN', $config);
 ### Airtime Purchase
 
 ```php
-$response = $client->purchaseAirtime([
-    'network' => 'mtn',
-    'phone' => '08012345678',
-    'amount' => 100
-]);
+$response = $client->purchaseAirtime('mtn', '08012345678', 100);
 
 print_r($response);
 ```
@@ -56,11 +52,32 @@ print_r($response);
 ### Data Purchase
 
 ```php
-$response = $client->purchaseData([
-    'network' => 'mtn_sme',
-    'phone' => '08012345678',
-    'plan' => '500MB'
-]);
+// Network identifier and plan code come from getDataNetworks() / getDataPlans()
+$response = $client->purchaseData('mtn_data_share', '08012345678', 'M1GBS');
+
+print_r($response);
+```
+
+### Cable TV Subscription
+
+```php
+// Verify the IUC/Smartcard first
+$verify = $client->verifyCable('dstv', '1234567890');
+
+// Then subscribe: provider, IUC, plan code, subscriber phone, amount
+$response = $client->purchaseCable('dstv', '1234567890', 'premium', '08012345678', 5000);
+
+print_r($response);
+```
+
+### Electricity Bill Payment
+
+```php
+// Verify the meter first
+$verify = $client->verifyMeter('ikeja-electric', '1234567890', 'prepaid');
+
+// Then pay: disco plan, meter, amount, type, subscriber phone
+$response = $client->purchaseElectricity('ikeja-electric', '1234567890', 1000, 'prepaid', '08012345678');
 
 print_r($response);
 ```

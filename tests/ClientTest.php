@@ -75,8 +75,9 @@ class ClientTest extends TestCase
         $this->assertEquals('POST', $container[0]['request']->getMethod());
         $body = json_decode($container[0]['request']->getBody(), true);
         $this->assertEquals('mtn', $body['network']);
-        $this->assertEquals('08012345678', $body['phone']);
+        $this->assertEquals('08012345678', $body['mobile_number']);
         $this->assertEquals(100, $body['amount']);
+        $this->assertEquals('airtime/topup', $container[0]['request']->getUri()->getPath());
     }
 
     public function testApiErrorHandling()
@@ -157,8 +158,8 @@ class ClientTest extends TestCase
         $this->assertEquals('POST', $container[0]['request']->getMethod());
         $body = json_decode($container[0]['request']->getBody(), true);
         $this->assertEquals('mtn', $body['network']);
-        $this->assertEquals('08012345678', $body['phone']);
-        $this->assertEquals('500mb', $body['plan']);
+        $this->assertEquals('08012345678', $body['mobile_number']);
+        $this->assertEquals('500mb', $body['plan_code']);
         $this->assertEquals('data/purchase', $container[0]['request']->getUri()->getPath());
     }
 
@@ -186,8 +187,8 @@ class ClientTest extends TestCase
         $this->assertEquals(['status' => 'valid', 'name' => 'Customer Name'], $result);
         $this->assertEquals('POST', $container[0]['request']->getMethod());
         $body = json_decode($container[0]['request']->getBody(), true);
-        $this->assertEquals('dstv', $body['provider']);
-        $this->assertEquals('1234567890', $body['iuc_number']);
+        $this->assertEquals('dstv', $body['identifier']);
+        $this->assertEquals('1234567890', $body['iuc']);
         $this->assertEquals('cable/verify', $container[0]['request']->getUri()->getPath());
     }
 
@@ -197,15 +198,17 @@ class ClientTest extends TestCase
         $container = [];
         $client = $this->createClientWithMockResponse([$mockResponse], $container);
 
-        $result = $client->purchaseCable('dstv', '1234567890', 'premium');
+        $result = $client->purchaseCable('dstv', '1234567890', 'premium', '08012345678', 5000);
 
         $this->assertEquals(['status' => 'success'], $result);
         $this->assertEquals('POST', $container[0]['request']->getMethod());
         $body = json_decode($container[0]['request']->getBody(), true);
-        $this->assertEquals('dstv', $body['provider']);
-        $this->assertEquals('1234567890', $body['iuc_number']);
+        $this->assertEquals('dstv', $body['identifier']);
+        $this->assertEquals('1234567890', $body['iuc']);
         $this->assertEquals('premium', $body['plan']);
-        $this->assertEquals('cable/purchase', $container[0]['request']->getUri()->getPath());
+        $this->assertEquals('08012345678', $body['phone']);
+        $this->assertEquals(5000, $body['amount']);
+        $this->assertEquals('cable/subscribe', $container[0]['request']->getUri()->getPath());
     }
 
     public function testGetElectricityPlans()
@@ -231,12 +234,12 @@ class ClientTest extends TestCase
         $result = $client->verifyMeter('ikeja', '1234567890', 'prepaid');
 
         $this->assertEquals(['status' => 'valid', 'name' => 'Customer Name'], $result);
-        $this->assertEquals('POST', $container[0]['request']->getMethod());
-        $body = json_decode($container[0]['request']->getBody(), true);
-        $this->assertEquals('electricity', $body['identifier']);
-        $this->assertEquals('ikeja', $body['provider']);
-        $this->assertEquals('1234567890', $body['meter_number']);
-        $this->assertEquals('prepaid', $body['type']);
+        $this->assertEquals('GET', $container[0]['request']->getMethod());
+        parse_str($container[0]['request']->getUri()->getQuery(), $query);
+        $this->assertEquals('electricity', $query['identifier']);
+        $this->assertEquals('ikeja', $query['plan']);
+        $this->assertEquals('1234567890', $query['meter']);
+        $this->assertEquals('prepaid', $query['type']);
         $this->assertEquals('electricity/verify', $container[0]['request']->getUri()->getPath());
     }
 
@@ -246,16 +249,18 @@ class ClientTest extends TestCase
         $container = [];
         $client = $this->createClientWithMockResponse([$mockResponse], $container);
 
-        $result = $client->purchaseElectricity('ikeja', '1234567890', 1000, 'prepaid');
+        $result = $client->purchaseElectricity('ikeja', '1234567890', 1000, 'prepaid', '08012345678');
 
         $this->assertEquals(['status' => 'success', 'token' => '1234-5678-9012'], $result);
         $this->assertEquals('POST', $container[0]['request']->getMethod());
         $body = json_decode($container[0]['request']->getBody(), true);
-        $this->assertEquals('ikeja', $body['provider']);
-        $this->assertEquals('1234567890', $body['meter_number']);
+        $this->assertEquals('electricity', $body['identifier']);
+        $this->assertEquals('ikeja', $body['plan']);
+        $this->assertEquals('1234567890', $body['meter']);
         $this->assertEquals(1000, $body['amount']);
         $this->assertEquals('prepaid', $body['type']);
-        $this->assertEquals('electricity/purchase', $container[0]['request']->getUri()->getPath());
+        $this->assertEquals('08012345678', $body['phone']);
+        $this->assertEquals('electricity/subscribe', $container[0]['request']->getUri()->getPath());
     }
 
     public function testRetryLogic()
