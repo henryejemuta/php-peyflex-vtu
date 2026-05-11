@@ -152,7 +152,7 @@ class Client
      */
     public function getBalance(): array
     {
-        return $this->request('GET', 'user/balance');
+        return $this->request('GET', 'wallet/balance');
     }
 
     /**
@@ -177,11 +177,11 @@ class Client
      */
     public function purchaseAirtime(string $network, string $phone, float $amount): array
     {
-        return $this->request('POST', 'airtime/purchase', [
+        return $this->request('POST', 'airtime/topup', [
             'json' => [
                 'network' => $network,
-                'phone' => $phone,
                 'amount' => $amount,
+                'mobile_number' => $phone,
             ],
         ]);
     }
@@ -212,18 +212,6 @@ class Client
     }
 
     /**
-     * Get data plans for a network.
-     *
-     * @param string $provider The provider identifier (e.g., 'dstv', 'gotv', 'startimes').
-     * @return array
-     * @throws PeyflexException
-     */
-    public function getCableTvPlans(string $provider): array
-    {
-        return $this->request('GET', "cable/plans/{$provider}");
-    }
-
-    /**
      * Purchase data.
      *
      * @param string $networkId The network identifier.
@@ -237,10 +225,22 @@ class Client
         return $this->request('POST', 'data/purchase', [
             'json' => [
                 'network' => $networkId,
-                'phone' => $phone,
-                'plan' => $planId,
+                'mobile_number' => $phone,
+                'plan_code' => $planId,
             ],
         ]);
+    }
+
+    /**
+     * Get data plans for a network.
+     *
+     * @param string $provider The provider identifier (e.g., 'dstv', 'gotv', 'startimes').
+     * @return array
+     * @throws PeyflexException
+     */
+    public function getCableTvPlans(string $provider): array
+    {
+        return $this->request('GET', "cable/plans/{$provider}");
     }
 
     /**
@@ -266,8 +266,8 @@ class Client
     {
         return $this->request('POST', 'cable/verify', [
             'json' => [
-                'provider' => $providerId,
-                'iuc_number' => $iucNumber,
+                'identifier' => $providerId,
+                'iuc' => $iucNumber,
             ],
         ]);
     }
@@ -278,16 +278,20 @@ class Client
      * @param string $providerId The provider identifier.
      * @param string $iucNumber The IUC number.
      * @param string $planId The plan identifier.
+     * @param string $phone The subscriber phone number.
+     * @param float|string $amount The amount for the selected plan.
      * @return array
      * @throws PeyflexException
      */
-    public function purchaseCable(string $providerId, string $iucNumber, string $planId): array
+    public function purchaseCable(string $providerId, string $iucNumber, string $planId, string $phone, $amount): array
     {
-        return $this->request('POST', 'cable/purchase', [
+        return $this->request('POST', 'cable/subscribe', [
             'json' => [
-                'provider' => $providerId,
-                'iuc_number' => $iucNumber,
+                'identifier' => $providerId,
                 'plan' => $planId,
+                'iuc' => $iucNumber,
+                'phone' => $phone,
+                'amount' => $amount,
             ],
         ]);
     }
@@ -316,11 +320,11 @@ class Client
      */
     public function verifyMeter(string $providerId, string $meterNumber, string $type = 'prepaid'): array
     {
-        return $this->request('POST', 'electricity/verify', [
-            'json' => [
+        return $this->request('GET', 'electricity/verify', [
+            'query' => [
                 'identifier' => 'electricity',
-                'provider' => $providerId,
-                'meter_number' => $meterNumber,
+                'meter' => $meterNumber,
+                'plan' => $providerId,
                 'type' => $type,
             ],
         ]);
@@ -333,17 +337,20 @@ class Client
      * @param string $meterNumber The meter number.
      * @param float $amount The amount to purchase.
      * @param string $type The meter type ('prepaid' or 'postpaid').
+     * @param string $phone The subscriber phone number.
      * @return array
      * @throws PeyflexException
      */
-    public function purchaseElectricity(string $providerId, string $meterNumber, float $amount, string $type = 'prepaid'): array
+    public function purchaseElectricity(string $providerId, string $meterNumber, float $amount, string $type = 'prepaid', string $phone = ''): array
     {
-        return $this->request('POST', 'electricity/purchase', [
+        return $this->request('POST', 'electricity/subscribe', [
             'json' => [
-                'provider' => $providerId,
-                'meter_number' => $meterNumber,
+                'identifier' => 'electricity',
+                'meter' => $meterNumber,
+                'plan' => $providerId,
                 'amount' => $amount,
                 'type' => $type,
+                'phone' => $phone,
             ],
         ]);
     }
